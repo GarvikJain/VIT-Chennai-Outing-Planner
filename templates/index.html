@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIT Chennai Pathfinder – A* Search</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <!-- Self-hosted to avoid tracking prevention blocking CDN storage -->
+  <script src="/static/js/vis-network.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>VIT Chennai Pathfinder</h1>
+      <p class="subtitle">A* search with path tree and graph map</p>
+    </header>
+
+    <section class="controls">
+      <div class="control-group">
+        <label for="destination">Destination</label>
+        <select id="destination">
+          <option value="">-- Select destination --</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="mandatory">Mandatory nodes (hold Ctrl/Cmd to multi-select)</label>
+        <select id="mandatory" multiple size="5"></select>
+      </div>
+      <div class="control-group">
+        <button type="button" id="runSearch" class="btn-primary">Run A* Search</button>
+      </div>
+    </section>
+
+    <section class="results" id="resultsSection">
+      <h2>Results</h2>
+      <div class="exec-info" id="execInfo"></div>
+      <div class="best-path" id="bestPathBox"></div>
+      <div class="table-wrap">
+        <table class="paths-table" id="pathsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Path</th>
+              <th>Cost (min)</th>
+              <th>Best</th>
+            </tr>
+          </thead>
+          <tbody id="pathsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="viz-section">
+      <h2>Path tree (branches → destination)</h2>
+      <div id="treeContainer" class="viz-container"></div>
+    </section>
+
+    <section class="viz-section">
+      <h2>Graph map (path highlighted)</h2>
+      <div id="graphContainer" class="viz-container"></div>
+    </section>
+
+    <section class="export">
+      <button type="button" id="exportPdf" class="btn-secondary">Export report (text summary)</button>
+    </section>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
