@@ -9,30 +9,92 @@
   <script src="/static/js/vis-network.min.js"></script>
 </head>
 <body>
+  <div class="bg-orb bg-orb-one"></div>
+  <div class="bg-orb bg-orb-two"></div>
+
   <div class="app">
-    <header class="header">
+    <header class="header card">
+      <div class="header-top">
+      <p class="eyebrow">Smart Route Planner</p>
+        <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle light and dark mode">Dark mode</button>
+      </div>
       <h1>VIT Chennai Pathfinder</h1>
-      <p class="subtitle">A* search with path tree and graph map</p>
+      <p class="subtitle">Run Searching Techniques to discover the most efficient outing route with destination constraints.</p>
     </header>
 
-    <section class="controls">
+    <section class="algo-nav card" id="algoNavSection">
+      <div class="algo-nav-head">
+        <h2>Technique Navigator</h2>
+        <p>Click a technique to inspect its path and performance.</p>
+      </div>
+      <div class="algo-tabs" id="algoTabs"></div>
+      <div class="algo-panel" id="algoPanel">Run a search to see technique outputs.</div>
+      <div class="algo-ranking" id="algoRanking"></div>
+    </section>
+
+    <section class="controls card">
       <div class="control-group">
         <label for="destination">Destination</label>
         <select id="destination">
           <option value="">-- Select destination --</option>
         </select>
       </div>
-      <div class="control-group">
+      <div class="control-group control-group-wide">
+        <label for="nodeSearch">Find node by name</label>
+        <input type="text" id="nodeSearch" placeholder="Type node name to search..." class="node-search-input" />
+        <div id="nodeSearchResults" class="node-search-results hidden"></div>
+      </div>
+      <div class="control-group control-group-wide">
         <label for="mandatory">Mandatory nodes (hold Ctrl/Cmd to multi-select)</label>
         <select id="mandatory" multiple size="5"></select>
+        <p class="control-hint">Selected mandatory stops are shown below.</p>
+        <div id="mandatorySummary" class="mandatory-summary" aria-live="polite"></div>
       </div>
-      <div class="control-group">
-        <button type="button" id="runSearch" class="btn-primary">Run A* Search</button>
+      <div class="control-group control-group-action">
+        <button type="button" id="runSearch" class="btn-primary">Run Search</button>
+        <button type="button" id="saveRoute" class="btn-secondary">Save Route</button>
       </div>
     </section>
 
-    <section class="results" id="resultsSection">
-      <h2>Results</h2>
+    <section class="features-grid card">
+      <div class="feature-box" id="waypointOptimizerBox">
+        <h3>Waypoint Optimizer</h3>
+        <p class="feature-desc">Best order to visit your mandatory nodes</p>
+        <div id="waypointOutput" class="feature-output">Run a search to see the optimal order.</div>
+      </div>
+      <div class="feature-box" id="costBreakdownBox">
+        <h3>Cost Breakdown</h3>
+        <p class="feature-desc">Travel time vs. node visit time</p>
+        <div id="costBreakdown" class="feature-output">No route selected.</div>
+      </div>
+      <div class="feature-box" id="alternativesBox">
+        <h3>Alternative Suggestions</h3>
+        <p class="feature-desc">Trade-offs to improve your route</p>
+        <div id="alternatives" class="feature-output">Run a search to see suggestions.</div>
+      </div>
+    </section>
+
+    <section class="card" id="routeHistorySection">
+      <h2>Route History & Favorites</h2>
+      <div class="history-controls">
+        <button type="button" id="clearHistory" class="btn-secondary">Clear History</button>
+      </div>
+      <div id="routeHistory" class="route-history">No saved routes yet.</div>
+    </section>
+
+    <section class="card" id="printableCardSection">
+      <div class="section-head">
+        <h2>Printable Route Card</h2>
+        <button type="button" id="printRoute" class="btn-secondary">Print / PDF</button>
+      </div>
+      <div id="printableCard" class="printable-card">Select a route to generate a printable card.</div>
+    </section>
+
+    <section class="results card" id="resultsSection">
+      <div class="section-head">
+        <h2>Results</h2>
+        <button type="button" id="exportPdf" class="btn-secondary">Export report</button>
+      </div>
       <div class="exec-info" id="execInfo"></div>
       <div class="best-path" id="bestPathBox"></div>
       <div class="table-wrap">
@@ -42,6 +104,7 @@
               <th>#</th>
               <th>Path</th>
               <th>Cost (min)</th>
+              <th>Time status</th>
               <th>Best</th>
             </tr>
           </thead>
@@ -50,18 +113,31 @@
       </div>
     </section>
 
-    <section class="viz-section">
-      <h2>Path tree (branches → destination)</h2>
-      <div id="treeContainer" class="viz-container"></div>
-    </section>
+    <section class="viz-grid">
+      <section class="viz-section card">
+        <h2>Path tree</h2>
+        <p class="viz-subtitle">Branch structure from start to destination</p>
+        <div id="treeContainer" class="viz-container"></div>
+      </section>
 
-    <section class="viz-section">
-      <h2>Graph map (path highlighted)</h2>
-      <div id="graphContainer" class="viz-container"></div>
-    </section>
+      <section class="viz-section card">
+        <h2>Graph map</h2>
+        <p class="viz-subtitle">Full connectivity with selected path highlighted</p>
+        <div id="graphContainer" class="viz-container"></div>
+      </section>
 
-    <section class="export">
-      <button type="button" id="exportPdf" class="btn-secondary">Export report (text summary)</button>
+      <section class="viz-section card">
+        <h2>Algorithm Guide</h2>
+        <p class="viz-subtitle">Hover over technique names above to learn when to use each algorithm</p>
+        <div id="algoGuide" class="algo-guide-content">
+          <div class="algo-info" data-algo="A*">A*: Fast, optimal with good heuristics. Best for single-destination routing.</div>
+          <div class="algo-info" data-algo="Dijkstra">Dijkstra: Guaranteed optimal. Slower than A* but works without heuristics.</div>
+          <div class="algo-info" data-algo="BFS">BFS: Finds shortest path by hop count, not cost. Good for small graphs.</div>
+          <div class="algo-info" data-algo="DFS">DFS: Fast exploration. May find suboptimal paths. Useful for reachability.</div>
+          <div class="algo-info" data-algo="Bellman-Ford">Bellman-Ford: Handles negative weights (if any). Slower but robust.</div>
+          <div class="algo-info" data-algo="Floyd-Warshall">Floyd-Warshall: All-pairs shortest path. Best for multi-destination planning.</div>
+        </div>
+      </section>
     </section>
   </div>
 

@@ -15,6 +15,7 @@ from graph_loader import (
     all_simple_paths_to_dest,
     path_visits_all,
     astar_with_explored,
+    compare_algorithms,
     build_path_trie,
     graph_for_vis,
     SOURCE_NODE,
@@ -87,8 +88,13 @@ def api_search():
         return jsonify({"error": "Invalid or missing destination"}), 400
 
     t0 = time.perf_counter()
-    # A* first (fast) – always run so we have a best path to show
+    # A* first (fast) – used for main graph/tree highlight
     best_path, total_cost, nodes_explored = astar_with_explored(
+        graph, node_time, SOURCE_NODE, destination, mandatory
+    )
+
+    # Compare techniques for tabbed UI and best-technique summary
+    algo_results, best_technique = compare_algorithms(
         graph, node_time, SOURCE_NODE, destination, mandatory
     )
     # Start with A* best path so the UI always has at least one path to display
@@ -123,6 +129,8 @@ def api_search():
         "total_cost": round(total_cost, 2) if total_cost != float("inf") else None,
         "nodes_explored": nodes_explored,
         "execution_ms": execution_ms,
+        "algorithm_results": algo_results,
+        "best_technique": best_technique,
         "paths_within_6hr": paths_within_6hr,
         "paths_over_6hr": paths_over_6hr,
         "paths_within_6hr_count": len(paths_within_6hr),
@@ -131,6 +139,7 @@ def api_search():
         "graph_data": graph_data,
         "destination": destination,
         "mandatory": mandatory,
+        "node_time": node_time,
     })
 
 
